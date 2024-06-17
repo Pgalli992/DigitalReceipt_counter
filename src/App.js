@@ -77,17 +77,17 @@ function EmployeeList({ employees, setEmployees }) {
 }
 
 function Employee({ employee, setEmployees }) {
-  const [digitalRecives, setDigitalRecives] = useLocalStorage(
-    `digitalRecives-${employee.id}`,
+  const [DigitalReceipt, setDigitalReceipt] = useLocalStorage(
+    `DigitalReceipt-${employee.id}`,
     0
   );
 
   function handleAddRecive() {
-    setDigitalRecives((recive) => recive + 1);
+    setDigitalReceipt((recive) => recive + 1);
   }
 
   function handleRemoveRecive() {
-    setDigitalRecives((recive) => recive - 1);
+    setDigitalReceipt((recive) => recive - 1);
   }
 
   function handleDeleteEmployee() {
@@ -108,7 +108,7 @@ function Employee({ employee, setEmployees }) {
         <h2>Scontrini Digitali</h2>
         <div className="flex justify-center items-center gap-4">
           <Button onClick={handleRemoveRecive}>-</Button>
-          <span>{digitalRecives}</span>
+          <span>{DigitalReceipt}</span>
           <Button onClick={handleAddRecive}>+</Button>
         </div>
       </div>
