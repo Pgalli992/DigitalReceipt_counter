@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function useLocalStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
@@ -25,22 +25,37 @@ function useLocalStorage(key, initialValue) {
   return [storedValue, setValue];
 }
 
-const initialEmplyee = [
-  { id: 1, name: "Paolo", image: "https://i.pravatar.cc/48?u=118836" },
-  { id: 2, name: "Rita", image: "https://i.pravatar.cc/48?u=933372" },
-  { id: 3, name: "Sara", image: "https://i.pravatar.cc/48?u=499476" },
+const initialEmployee = [
+  { id: 1, name: "Test", image: "https://i.pravatar.cc/48?u=118836" },
 ];
 
 export default function App() {
-  const [employees, setEmployees] = useState(initialEmplyee);
+  const [employees, setEmployees] = useState(function () {
+    const storedValue = localStorage.getItem("employees");
+    return storedValue ? JSON.parse(storedValue) : initialEmployee;
+  });
 
   function handleAddEmployee(employee) {
     setEmployees((employees) => [...employees, employee]);
   }
 
+  useEffect(
+    function () {
+      localStorage.setItem("employees", JSON.stringify(employees));
+    },
+    [employees]
+  );
+
+  // useEffect(
+  //   function () {
+  //     localStorage.getItem("employees", JSON.parse(employees));
+  //   },
+  //   [employees]
+  // );
+
   return (
     <div className="min-w-screen min-h-screen bg-ueblue-500 flex justify-center items-center p-12">
-      <div className="min-w-[75vw] min-h-[75vh] bg-slate-200 flex justify-center items-center gap-12">
+      <div className="min-w-[75vw] min-h-[75vh] bg-slate-200 flex justify-center items-center gap-12 rounded-xl">
         <Employees
           employees={employees}
           setEmployees={setEmployees}
@@ -52,11 +67,28 @@ export default function App() {
 }
 
 function Employees({ employees, setEmployees, onAddEmployee }) {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <div className="flex flex-col gap-8 items-center p-4">
-        <EmployeeList employees={employees} setEmployees={setEmployees} />
-        <FormAddEmployee onAddEmployee={onAddEmployee} />
+        <EmployeeList
+          employees={employees}
+          setEmployees={setEmployees}
+          setIsOpen={setIsOpen}
+        />
+        {!isOpen ? (
+          <button
+            className="w-16 text-center text-3xl text-ueorange-500 aspect-square bg-ueblue-500 rounded-full mt-16"
+            onClick={() => setIsOpen(true)}
+          >
+            +
+          </button>
+        ) : (
+          <FormAddEmployee
+            onAddEmployee={onAddEmployee}
+            setIsOpen={setIsOpen}
+          />
+        )}
       </div>
     </>
   );
@@ -117,10 +149,11 @@ function Employee({ employee, setEmployees }) {
   );
 }
 
-function Button({ children, onClick }) {
+function Button({ children, onClick, color = "#F07800" }) {
   return (
     <button
-      className="w-8 text-center text-slate-100 aspect-square bg-ueorange-500 rounded-full"
+      className={`w-8 text-center text-slate-100 aspect-square rounded-full`}
+      style={{ backgroundColor: color }}
       onClick={onClick}
     >
       {children}
@@ -128,7 +161,7 @@ function Button({ children, onClick }) {
   );
 }
 
-function FormAddEmployee({ onAddEmployee }) {
+function FormAddEmployee({ onAddEmployee, setIsOpen }) {
   const [name, setName] = useState("");
   const [image, setImage] = useState("https://i.pravatar.cc/48");
 
@@ -141,7 +174,7 @@ function FormAddEmployee({ onAddEmployee }) {
     const newEmployee = {
       id,
       name,
-      image: `${image}?=${id}`,
+      image: `${image}?u=${id}`,
       balance: 0,
     };
 
@@ -149,13 +182,20 @@ function FormAddEmployee({ onAddEmployee }) {
 
     setName("");
     setImage("https://i.pravatar.cc/48");
+    setIsOpen(false);
   }
 
   return (
     <form
-      className="w-full bg-ueorange-500 flex flex-col gap-2 justify-center items-center p-2 rounded-xl"
+      className="w-full bg-ueorange-500 flex flex-col gap-2 justify-center items-center p-4 rounded-xl relative"
       onSubmit={handleSubmit}
     >
+      <span
+        className="text-slate-100 absolute top-2 right-4 cursor-pointer"
+        onClick={() => setIsOpen(false)}
+      >
+        x
+      </span>
       <label>Nome</label>
       <input
         type="text"
@@ -171,7 +211,7 @@ function FormAddEmployee({ onAddEmployee }) {
         onChange={(e) => setImage(e.target.value)}
       />
 
-      <Button>Add</Button>
+      <Button color={"#002758"}>Add</Button>
     </form>
   );
 }
