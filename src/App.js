@@ -1,39 +1,39 @@
 import { useEffect, useState } from "react";
+import { useLocalStorageState } from "./useLocalStorageState";
 
-function useLocalStorage(key, initialValue) {
-  const [storedValue, setStoredValue] = useState(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.log(error);
-      return initialValue;
-    }
-  });
+const months = [
+  "Gennaio",
+  "Febbraio",
+  "Marzo",
+  "Aprile",
+  "Maggio",
+  "Giugno",
+  "Luglio",
+  "Agosto",
+  "Settembre",
+  "Ottobre",
+  "Novembre",
+  "Dicembre",
+];
 
-  const setValue = (value) => {
-    try {
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return [storedValue, setValue];
-}
+const currentDate = new Date();
+const month = String(currentDate.getMonth());
+const currentMonth = months.at(Number(month));
 
 const initialEmployee = [
-  { id: 1, name: "Test", image: "https://i.pravatar.cc/48?u=118836" },
+  {
+    id: 1,
+    name: "Test",
+    image: "https://i.pravatar.cc/48?u=118836",
+    balance: { month: currentMonth, receipt: 0 },
+  },
 ];
 
 export default function App() {
-  const [employees, setEmployees] = useState(function () {
-    const storedValue = localStorage.getItem("employees");
-    return storedValue ? JSON.parse(storedValue) : initialEmployee;
-  });
+  const [employees, setEmployees] = useLocalStorageState(
+    initialEmployee,
+    "employees"
+  );
 
   function handleAddEmployee(employee) {
     setEmployees((employees) => [...employees, employee]);
@@ -68,9 +68,23 @@ export default function App() {
 
 function Employees({ employees, setEmployees, onAddEmployee }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [month, setMonth] = useState(currentMonth);
+
   return (
     <>
       <div className="flex flex-col gap-8 items-center p-4">
+        <select>
+          {months.map((month, i) => (
+            <option
+              value={i}
+              onChange={(e) => setMonth(e.target.value)}
+              key={i}
+              selected={month === currentMonth}
+            >
+              {month}
+            </option>
+          ))}
+        </select>
         <EmployeeList
           employees={employees}
           setEmployees={setEmployees}
@@ -109,17 +123,18 @@ function EmployeeList({ employees, setEmployees }) {
 }
 
 function Employee({ employee, setEmployees }) {
-  const [DigitalReceipt, setDigitalReceipt] = useLocalStorage(
-    `DigitalReceipt-${employee.id}`,
+  const [digitalReceipt, setDigitalReceipt] = useLocalStorageState(
+    0,
+    `digitalReceipt-${employee.id}`,
     0
   );
 
-  function handleAddRecive() {
-    setDigitalReceipt((recive) => recive + 1);
+  function handleAddreceipt() {
+    setDigitalReceipt((receipt) => receipt + 1);
   }
 
-  function handleRemoveRecive() {
-    setDigitalReceipt((recive) => recive - 1);
+  function handleRemovereceipt() {
+    setDigitalReceipt((receipt) => receipt - 1);
   }
 
   function handleDeleteEmployee() {
@@ -139,9 +154,9 @@ function Employee({ employee, setEmployees }) {
       <div>
         <h2>Scontrini Digitali</h2>
         <div className="flex justify-center items-center gap-4">
-          <Button onClick={handleRemoveRecive}>-</Button>
-          <span>{DigitalReceipt}</span>
-          <Button onClick={handleAddRecive}>+</Button>
+          <Button onClick={handleRemovereceipt}>-</Button>
+          <span>{digitalReceipt}</span>
+          <Button onClick={handleAddreceipt}>+</Button>
         </div>
       </div>
       <button onClick={handleDeleteEmployee}>❌</button>
@@ -175,7 +190,7 @@ function FormAddEmployee({ onAddEmployee, setIsOpen }) {
       id,
       name,
       image: `${image}?u=${id}`,
-      balance: 0,
+      receipt: { month: currentMonth, totalreceipts: 0 },
     };
 
     onAddEmployee(newEmployee);
