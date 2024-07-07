@@ -125,8 +125,7 @@ function EmployeeList({ employees, setEmployees }) {
 function Employee({ employee, setEmployees }) {
   const [digitalReceipt, setDigitalReceipt] = useLocalStorageState(
     0,
-    `digitalReceipt-${employee.id}`,
-    0
+    `digitalReceipt-${employee.id}`
   );
 
   function handleAddreceipt() {
