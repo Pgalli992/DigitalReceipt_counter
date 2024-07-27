@@ -68,7 +68,7 @@ export default function App() {
 
 function Employees({ employees, setEmployees, onAddEmployee }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [month, setMonth] = useState(currentMonth);
+  // const [month, setMonth] = useState(currentMonth);
 
   return (
     <>
