@@ -73,7 +73,7 @@ function Employees({ employees, setEmployees, onAddEmployee }) {
   return (
     <>
       <div className="flex flex-col gap-8 items-center p-4">
-        <select>
+        {/* <select>
           {months.map((month, i) => (
             <option
               value={i}
@@ -84,7 +84,7 @@ function Employees({ employees, setEmployees, onAddEmployee }) {
               {month}
             </option>
           ))}
-        </select>
+        </select> */}
         <EmployeeList
           employees={employees}
           setEmployees={setEmployees}
